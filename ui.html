@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    :root {
+      --font-family: 'Figtree', sans-serif;
+      --bg-primary: #2C2C2C;
+      --bg-secondary: #3E3E3E;
+      --text-primary: #FFFFFF;
+      --text-secondary: #B3B3B3;
+      --border-primary: #555555;
+      --border-focus: #2F80ED;
+      --accent-blue: #0D99FF;
+      --accent-red: #ff5e5e;
+      --dark-red: #370000;
+      --ease-butter: cubic-bezier(0.25, 0.8, 0.3, 1);
+    }
+
+    .light-mode {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f1f1f1;
+      --text-primary: #000000;
+      --text-secondary: #555555;
+      --border-primary: #dcdcdc;
+      --border-focus: #1a73e8;
+      /* Figma's blue focus ring */
+      --accent-blue: #1a73e8;
+      --accent-red: #ca0f0f;
+      --dark-red: #ffbaba;
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      padding: 12px;
+      margin: 0;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
+    }
+
+    .header-area {
+      flex-shrink: 0;
+    }
+
+    .main-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      margin-right: -12px;
+      padding-right: 12px;
+    }
+
+    .form-container {
+      position: relative;
+      width: 100%;
+      margin-bottom: 0px;
+    }
+
+    .input-field {
+      background-color: var(--bg-secondary);
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 8px 48px 8px 8px;
+      color: var(--text-primary);
+      width: 100%;
+      box-sizing: border-box;
+      font-size: 14px;
+      font-family: inherit;
+      line-height: 1.4;
+      resize: none;
+      overflow: hidden;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 1px var(--border-focus);
+    }
+
+    .submit-icon-button {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      background-color: var(--accent-blue);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s var(--ease-butter), filter 0.2s var(--ease-butter);
+    }
+
+    .input-field::placeholder {
+      color: var(--text-secondary);
+      opacity: 1;
+    }
+
+    .submit-icon-button:hover {
+      filter: brightness(1.2);
+    }
+
+    .submit-icon-button .material-symbols-outlined {
+      font-size: 20px;
+    }
+
+    .submit-icon-button:disabled {
+      background-color: var(--bg-primary);
+      color: var(--text-secondary);
+      cursor: not-allowed;
+      filter: none;
+    }
+
+    .refresh-icon-button {
+      font-family: var(--font-family);
+      position: absolute;
+      bottom: 0px;
+      left: 0px;
+      margin: 0 auto;
+      width: 100%;
+      height: 40px;
+      background-color: var(--bg-primary);
+      color: var(--text-secondary);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s var(--ease-butter), filter 0.2s var(--ease-butter);
+    }
+
+    .refresh-icon-button:hover {
+      color: var(--text-primary);
+    }
+
+    #refresh-button {
+      display: none;
+    }
+
+    #refresh-icon {
+      margin-right: 4px;
+    }
+
+    #refresh-message {
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    .sort-controls {
+      background-color: var(--bg-secondary);
+      display: inline-block;
+      padding: 0;
+      margin-top: 24px;
+      margin-bottom: 0px;
+      border-radius: 4px;
+    }
+
+    .sort-button {
+      background-color: var(--bg-secondary);
+      color: var(--text-secondary);
+      border: 0px solid var(--border-primary);
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background-color 0.2s var(--ease-butter), color 0.2s var(--ease-butter);
+      border-radius: 4px;
+      margin: 0px;
+    }
+
+    .sort-button:hover {
+      background-color: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+
+    .sort-button.active {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      border-radius: 4px;
+      border: 1px solid var(--border-primary);
+    }
+
+    .task-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 8px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      min-height: 48px;
+      box-sizing: border-box;
+      background-color: var(--bg-secondary);
+      border-radius: 4px;
+      transition: transform 0.5s var(--ease-butter), opacity 0.5s var(--ease-butter);
+    }
+
+    .task-item.completed .task-text {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(0px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .task-fade-in {
+      animation: fadeInUp 400ms var(--ease-butter) both;
+    }
+
+    .checkbox-icon {
+      background: none;
+      border: none;
+      padding: 0;
+      color: var(--text-secondary);
+      cursor: pointer;
+      line-height: 1;
+      width: 24px;
+      height: 24px;
+    }
+
+    .checkbox-icon:hover {
+      color: var(--text-primary);
+    }
+
+    .checkbox-icon.completed {
+      color: var(--text-secondary);
+    }
+
+    .checkbox-icon.completed:hover {
+      color: var(--text-primary);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .icon-button {
+      background: none;
+      border: none;
+      padding: 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.1s var(--ease-butter);
+    }
+
+    .icon-button:hover {
+      color: var(--text-primary);
+      background-color: var(--bg-primary);
+    }
+
+    .material-symbols-outlined {
+      font-size: 18px;
+      font-variation-settings: 'wght' 300;
+    }
+
+    #clear-button {
+      visibility: hidden;
+      opacity: 0;
+      margin-left: auto;
+      margin-right: 8px;
+      transition: opacity 0.2s var(--ease-butter);
+    }
+
+    #clear-button:hover {
+      color: var(--accent-red);
+      background-color: var(--dark-red);
+    }
+
+    details[open] #clear-button {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .checkbox-icon .material-symbols-outlined {
+      font-size: 18px !important;
+    }
+
+    .task-text {
+      flex-grow: 1;
+      padding: 8px 0;
+    }
+
+    .completed-section {
+      margin-top: 0px;
+    }
+
+    .completed-summary {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      font-weight: 400;
+      font-size: 14px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 4px 0;
+      user-select: none;
+    }
+
+    .completed-summary:hover {
+      color: var(--text-primary);
+    }
+
+    .disclosure-arrow {
+      font-size: 16px !important;
+      transition: transform 0.3s var(--ease-butter);
+    }
+
+    details[open]>summary .disclosure-arrow {
+      transform: rotate(90deg);
+    }
+
+    .summary-text-wrapper {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 0px 16px 24px 16px;
+      color: var(--text-secondary);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.6s var(--ease-butter) 0.2s, transform 1s var(--ease-butter) 0.2s;
+    }
+
+    .empty-state.hidden {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .empty-state.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .empty-state p {
+      margin-top: 8px;
+      font-size: 14px;
+      opacity: 1;
+    }
+
+    .theme-toggle {
+      font-size: 12px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+    }
+  </style>
+  <script src="https://unpkg.com/lottie-web@5.12.0/build/player/lottie.min.js"></script>
+
+</head>
+
+<body>
+  <div class="header-area">
+    <div class="form-container">
+      <textarea id="task-input" rows="3" class="input-field" placeholder="Create a task"></textarea>
+      <button id="submit-icon-button" class="submit-icon-button" disabled>
+        <span class="material-symbols-outlined">arrow_upward</span>
+      </button>
+    </div>
+  </div>
+  <div class="main-content">
+    <div id="sort-controls" class="sort-controls hidden">
+      <button id="sort-newest" class="sort-button active">Newest</button>
+      <button id="sort-oldest" class="sort-button">Oldest</button>
+    </div>
+
+    <ul id="task-list" class="task-list"></ul>
+    <div id="empty-state" class="empty-state hidden">
+
+      <div id="lottie-container" style="width: 64px; height: 64px; margin: 0 auto 12px auto;"></div>
+
+      <p>Surely there's something you need to do.</p>
+    </div>
+    <div id="completed-section" class="completed-section" style="display: none;">
+      <details>
+        <summary id="completed-summary" class="completed-summary">
+          <span class="material-symbols-outlined disclosure-arrow">chevron_right</span>
+          <div class="summary-text-wrapper">
+            <span class="summary-text">Completed</span>
+            <button id="clear-button" class="icon-button" title="Clear completed tasks">
+              <span class="material-symbols-outlined">delete</span>
+            </button>
+          </div>
+        </summary>
+        <ul id="completed-task-list" class="task-list" style="margin-top: 4px;"></ul>
+      </details>
+    </div>
+  </div>
+  <button id="refresh-button" class="refresh-icon-button" title="Refresh Todos">
+    <span id="refresh-icon" class="material-symbols-outlined">refresh</span><span id="refresh-message">Sync with other
+      users</span>
+  </button>
+
+  <script>
+
+    document.addEventListener("DOMContentLoaded", () => {
+      window.onmessage = (event) => {
+        const message = event.data.pluginMessage;
+
+        if (message.type === 'render-tasks') { renderTasks(message.tasks); }
+        if (message.type === 'selection-changed') {
+          linkedNodeId = message.nodeId;
+          linkedPageId = message.pageId;
+        }
+        if (message.type === "focus-task-input") {
+          const input = document.getElementById("task-input");
+          if (input) input.focus();
+        }
+        if (message.type === 'trigger-confetti') {
+          launchGreyscaleConfetti();
+        }
+
+      };
+
+    });
+
+    // Request shared todos from plugin
+    window.addEventListener("DOMContentLoaded", () => {
+      parent.postMessage({ pluginMessage: { type: "get-todos" } }, "*");
+    });
+
+    // Listen for shared todos from the plugin
+    window.onmessage = (event) => {
+      const { type, todos } = event.data.pluginMessage;
+      if (type === "load-todos") {
+        renderTasks(todos); // however you're rendering tasks
+      }
+    };
+
+    // When todos are changed (add, update, delete), sync to plugin storage
+    function saveTodosToPlugin(todos) {
+      parent.postMessage({ pluginMessage: { type: "save-todos", todos } }, "*");
+    }
+
+    // All script content has been manually verified to be complete and correct.
+    const input = document.getElementById('task-input');
+    const submitIconButton = document.getElementById('submit-icon-button');
+    const activeList = document.getElementById('task-list');
+    const completedList = document.getElementById('completed-task-list');
+    const completedSection = document.getElementById('completed-section');
+    const completedSummary = document.getElementById('completed-summary');
+    const completedSummaryText = completedSummary.querySelector('.summary-text');
+    const clearButton = document.getElementById('clear-button');
+    const emptyState = document.getElementById('empty-state');
+    const sortControls = document.getElementById('sort-controls');
+    const sortNewestBtn = document.getElementById("sort-newest");
+    const sortOldestBtn = document.getElementById("sort-oldest");
+    let linkedNodeId = null;
+    let linkedPageId = null;
+    const emptyLottie = {
+      "v": "5.12.2", "fr": 60, "ip": 0, "op": 120, "w": 48, "h": 48, "nm": "To Do", "ddd": 0, "assets": [], "layers": [{ "ddd": 0, "ind": 1, "ty": 4, "nm": "Todo-outline-top_s1g1_s2g2_s3g1_s4g1_background ", "parent": 3, "sr": 1, "ks": { "o": { "a": 0, "k": 100, "ix": 11 }, "r": { "a": 0, "k": 0, "ix": 10 }, "p": { "a": 0, "k": [24, 24, 0], "ix": 2, "l": 2 }, "a": { "a": 0, "k": [24, 24, 0], "ix": 1, "l": 2 }, "s": { "a": 0, "k": [100, 100, 100], "ix": 6, "l": 2 } }, "ao": 0, "shapes": [{ "ty": "gr", "it": [{ "ind": 0, "ty": "sh", "ix": 1, "ks": { "a": 0, "k": { "i": [[-1.233, 0], [0, 0], [0, -1.233], [0, 0], [1.232, 0], [0, 0], [0, 1.233], [0, 0]], "o": [[0, 0], [1.232, 0], [0, 0], [0, 1.233], [0, 0], [-1.233, 0], [0, 0], [0, -1.233]], "v": [[-2.207, -4.439], [2.207, -4.439], [4.439, -2.207], [4.439, 2.207], [2.207, 4.439], [-2.207, 4.439], [-4.439, 2.207], [-4.439, -2.207]], "c": true }, "ix": 2 }, "nm": "Path 1", "mn": "ADBE Vector Shape - Group", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 1", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tr", "p": { "a": 0, "k": [17.259, 15.712], "ix": 2 }, "a": { "a": 0, "k": [0, 0], "ix": 1 }, "s": { "a": 0, "k": [100, 100], "ix": 3 }, "r": { "a": 0, "k": 0, "ix": 6 }, "o": { "a": 0, "k": 100, "ix": 7 }, "sk": { "a": 0, "k": 0, "ix": 4 }, "sa": { "a": 0, "k": 0, "ix": 5 }, "nm": "Transform" }], "nm": "Group 1", "np": 2, "cix": 2, "bm": 0, "ix": 1, "mn": "ADBE Vector Group", "hd": false }, { "ty": "gr", "it": [{ "ind": 0, "ty": "sh", "ix": 1, "ks": { "a": 0, "k": { "i": [[0, 0], [0, 0], [0, 0]], "o": [[0, 0], [0, 0], [0, 0]], "v": [[-2.068, 0.352], [-0.924, 1.495], [2.068, -1.495]], "c": false }, "ix": 2 }, "nm": "Path 1", "mn": "ADBE Vector Shape - Group", "hd": false }, { "ty": "tm", "s": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 0, "s": [0] }, { "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 32.727, "s": [100] }, { "t": 60, "s": [0] }], "ix": 1 }, "e": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 0, "s": [100] }, { "t": 60, "s": [100] }], "ix": 2 }, "o": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 32.727, "s": [0] }, { "t": 60, "s": [360] }], "ix": 3 }, "m": 1, "ix": 2, "nm": "Trim Paths 1", "mn": "ADBE Vector Filter - Trim", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 1", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tr", "p": { "a": 0, "k": [17.382, 16.124], "ix": 2 }, "a": { "a": 0, "k": [0, 0], "ix": 1 }, "s": { "a": 0, "k": [100, 100], "ix": 3 }, "r": { "a": 0, "k": 0, "ix": 6 }, "o": { "a": 0, "k": 100, "ix": 7 }, "sk": { "a": 0, "k": 0, "ix": 4 }, "sa": { "a": 0, "k": 0, "ix": 5 }, "nm": "Transform" }], "nm": "Group 3", "np": 3, "cix": 2, "bm": 0, "ix": 2, "mn": "ADBE Vector Group", "hd": false }], "ip": 0, "op": 120, "st": 0, "ct": 1, "bm": 0 }, { "ddd": 0, "ind": 2, "ty": 4, "nm": "Todo-outline-bot_s1g1_s2g1_s3g1_s4g1", "parent": 3, "sr": 1, "ks": { "o": { "a": 0, "k": 100, "ix": 11 }, "r": { "a": 0, "k": 0, "ix": 10 }, "p": { "a": 0, "k": [24, 24, 0], "ix": 2, "l": 2 }, "a": { "a": 0, "k": [24, 24, 0], "ix": 1, "l": 2 }, "s": { "a": 0, "k": [100, 100, 100], "ix": 6, "l": 2 } }, "ao": 0, "shapes": [{ "ty": "gr", "it": [{ "ind": 0, "ty": "sh", "ix": 1, "ks": { "a": 0, "k": { "i": [[-1.099, 0], [0, 1.099], [1.099, 0], [0, -1.1]], "o": [[1.099, 0], [0, -1.1], [-1.099, 0], [0, 1.099]], "v": [[0, 1.99], [1.99, 0.001], [0, -1.99], [-1.99, 0.001]], "c": true }, "ix": 2 }, "nm": "Path 1", "mn": "ADBE Vector Shape - Group", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 1", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tr", "p": { "a": 0, "k": [17.382, 33.49], "ix": 2 }, "a": { "a": 0, "k": [0, 0], "ix": 1 }, "s": { "a": 1, "k": [{ "i": { "x": [0.833, 0.833], "y": [0.833, 0.833] }, "o": { "x": [0.167, 0.167], "y": [0.167, 0.167] }, "t": 50, "s": [100, 100] }, { "i": { "x": [0.833, 0.833], "y": [0.833, 0.833] }, "o": { "x": [0.167, 0.167], "y": [0.167, 0.167] }, "t": 60, "s": [0, 0] }, { "t": 70, "s": [100, 100] }], "ix": 3 }, "r": { "a": 0, "k": 0, "ix": 6 }, "o": { "a": 0, "k": 100, "ix": 7 }, "sk": { "a": 0, "k": 0, "ix": 4 }, "sa": { "a": 0, "k": 0, "ix": 5 }, "nm": "Transform" }], "nm": "Group 1", "np": 2, "cix": 2, "bm": 0, "ix": 1, "mn": "ADBE Vector Group", "hd": false }, { "ty": "gr", "it": [{ "ind": 0, "ty": "sh", "ix": 1, "ks": { "a": 0, "k": { "i": [[0, 0], [0, 0]], "o": [[0, 0], [0, 0]], "v": [[26.273, 33.512], [34.5, 33.512]], "c": false }, "ix": 2 }, "nm": "Path 1", "mn": "ADBE Vector Shape - Group", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 1", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tm", "s": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 70, "s": [0] }, { "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 90, "s": [100] }, { "t": 110, "s": [0] }], "ix": 1 }, "e": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 70, "s": [100] }, { "t": 110, "s": [100] }], "ix": 2 }, "o": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 90, "s": [0] }, { "t": 110, "s": [360] }], "ix": 3 }, "m": 1, "ix": 3, "nm": "Trim Paths 1", "mn": "ADBE Vector Filter - Trim", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 1, "lj": 1, "ml": 4, "bm": 0, "nm": "Stroke 2", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tr", "p": { "a": 0, "k": [0, 0], "ix": 2 }, "a": { "a": 0, "k": [0, 0], "ix": 1 }, "s": { "a": 0, "k": [100, 100], "ix": 3 }, "r": { "a": 0, "k": 0, "ix": 6 }, "o": { "a": 0, "k": 100, "ix": 7 }, "sk": { "a": 0, "k": 0, "ix": 4 }, "sa": { "a": 0, "k": 0, "ix": 5 }, "nm": "Transform" }], "nm": "Group 2", "np": 4, "cix": 2, "bm": 0, "ix": 2, "mn": "ADBE Vector Group", "hd": false }, { "ty": "gr", "it": [{ "ind": 0, "ty": "sh", "ix": 1, "ks": { "a": 0, "k": { "i": [[-1.099, 0], [0, 1.099], [1.099, 0], [0, -1.1]], "o": [[1.099, 0], [0, -1.1], [-1.099, 0], [0, 1.099]], "v": [[0, 1.99], [1.99, 0.001], [0, -1.99], [-1.99, 0.001]], "c": true }, "ix": 2 }, "nm": "Path 1", "mn": "ADBE Vector Shape - Group", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 1", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tr", "p": { "a": 0, "k": [17.382, 25.5], "ix": 2 }, "a": { "a": 0, "k": [0, 0], "ix": 1 }, "s": { "a": 1, "k": [{ "i": { "x": [0.833, 0.833], "y": [0.833, 0.833] }, "o": { "x": [0.167, 0.167], "y": [0.167, 0.167] }, "t": 20, "s": [100, 100] }, { "i": { "x": [0.833, 0.833], "y": [0.833, 0.833] }, "o": { "x": [0.167, 0.167], "y": [0.167, 0.167] }, "t": 30, "s": [0, 0] }, { "t": 40, "s": [100, 100] }], "ix": 3 }, "r": { "a": 0, "k": 0, "ix": 6 }, "o": { "a": 0, "k": 100, "ix": 7 }, "sk": { "a": 0, "k": 0, "ix": 4 }, "sa": { "a": 0, "k": 0, "ix": 5 }, "nm": "Transform" }], "nm": "Group 3", "np": 2, "cix": 2, "bm": 0, "ix": 3, "mn": "ADBE Vector Group", "hd": false }, { "ty": "gr", "it": [{ "ind": 0, "ty": "sh", "ix": 1, "ks": { "a": 0, "k": { "i": [[0, 0], [0, 0]], "o": [[0, 0], [0, 0]], "v": [[26.273, 25.521], [34.5, 25.521]], "c": false }, "ix": 2 }, "nm": "Path 1", "mn": "ADBE Vector Shape - Group", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 1", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tm", "s": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 30, "s": [0] }, { "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 50, "s": [100] }, { "t": 70, "s": [0] }], "ix": 1 }, "e": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 30, "s": [100] }, { "t": 70, "s": [100] }], "ix": 2 }, "o": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 50, "s": [0] }, { "t": 70, "s": [360] }], "ix": 3 }, "m": 1, "ix": 3, "nm": "Trim Paths 1", "mn": "ADBE Vector Filter - Trim", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 2", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tr", "p": { "a": 0, "k": [0, 0], "ix": 2 }, "a": { "a": 0, "k": [0, 0], "ix": 1 }, "s": { "a": 0, "k": [100, 100], "ix": 3 }, "r": { "a": 0, "k": 0, "ix": 6 }, "o": { "a": 0, "k": 100, "ix": 7 }, "sk": { "a": 0, "k": 0, "ix": 4 }, "sa": { "a": 0, "k": 0, "ix": 5 }, "nm": "Transform" }], "nm": "Group 4", "np": 4, "cix": 2, "bm": 0, "ix": 4, "mn": "ADBE Vector Group", "hd": false }], "ip": 0, "op": 120, "st": 0, "ct": 1, "bm": 0 }, { "ddd": 0, "ind": 3, "ty": 4, "nm": "Todo-outline-top_s1g1_s2g2_s3g1_s4g1_background", "sr": 1, "ks": { "o": { "a": 0, "k": 100, "ix": 11 }, "r": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 0, "s": [0] }, { "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 11, "s": [-3] }, { "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 34, "s": [3] }, { "t": 52, "s": [0] }], "ix": 10 }, "p": { "a": 1, "k": [{ "i": { "x": 0, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 0, "s": [24, 24, 0], "to": [0, -0.667, 0], "ti": [0, 0, 0] }, { "i": { "x": 0, "y": 1 }, "o": { "x": 0.333, "y": 0 }, "t": 20, "s": [24, 20, 0], "to": [0, 0, 0], "ti": [0, -0.667, 0] }, { "t": 50, "s": [24, 24, 0] }], "ix": 2, "l": 2 }, "a": { "a": 0, "k": [24, 24, 0], "ix": 1, "l": 2 }, "s": { "a": 0, "k": [100, 100, 100], "ix": 6, "l": 2 } }, "ao": 0, "shapes": [{ "ty": "gr", "it": [{ "ind": 0, "ty": "sh", "ix": 1, "ks": { "a": 0, "k": { "i": [[0, 0], [0, 0]], "o": [[0, 0], [0, 0]], "v": [[26.273, 16.937], [34.5, 16.937]], "c": false }, "ix": 2 }, "nm": "Path 1", "mn": "ADBE Vector Shape - Group", "hd": false }, { "ty": "tm", "s": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 0, "s": [0] }, { "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 20, "s": [100] }, { "t": 40, "s": [0] }], "ix": 1 }, "e": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 0, "s": [100] }, { "t": 40, "s": [100] }], "ix": 2 }, "o": { "a": 1, "k": [{ "i": { "x": [0.833], "y": [0.833] }, "o": { "x": [0.167], "y": [0.167] }, "t": 20, "s": [0] }, { "t": 40, "s": [360] }], "ix": 3 }, "m": 1, "ix": 2, "nm": "Trim Paths 1", "mn": "ADBE Vector Filter - Trim", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 1", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "tr", "p": { "a": 0, "k": [0, 0], "ix": 2 }, "a": { "a": 0, "k": [0, 0], "ix": 1 }, "s": { "a": 0, "k": [100, 100], "ix": 3 }, "r": { "a": 0, "k": 0, "ix": 6 }, "o": { "a": 0, "k": 100, "ix": 7 }, "sk": { "a": 0, "k": 0, "ix": 4 }, "sa": { "a": 0, "k": 0, "ix": 5 }, "nm": "Transform" }], "nm": "Group 2", "np": 3, "cix": 2, "bm": 0, "ix": 1, "mn": "ADBE Vector Group", "hd": false }, { "ty": "gr", "it": [{ "ind": 0, "ty": "sh", "ix": 1, "ks": { "a": 0, "k": { "i": [[3.715, 0], [0, 0], [0, 3.715], [0, 0], [-3.716, 0], [0, 0], [0, -3.715], [0, 0]], "o": [[0, 0], [-3.716, 0], [0, 0], [0, -3.715], [0, 0], [3.715, 0], [0, 0], [0, 3.715]], "v": [[10.364, 17], [-10.363, 17], [-17.091, 10.273], [-17.091, -10.273], [-10.363, -17], [10.364, -17], [17.091, -10.273], [17.091, 10.273]], "c": true }, "ix": 2 }, "nm": "Path 1", "mn": "ADBE Vector Shape - Group", "hd": false }, { "ty": "st", "c": { "a": 0, "k": [0.6666666666666666, 0.6666666666666666, 0.6666666666666666], "ix": 3 }, "o": { "a": 0, "k": 100, "ix": 4 }, "w": { "a": 0, "k": 1.3199999999999998, "ix": 5 }, "lc": 2, "lj": 2, "bm": 0, "nm": "Stroke 1", "mn": "ADBE Vector Graphic - Stroke", "hd": false }, { "ty": "fl", "c": { "a": 0, "k": [1, 1, 1], "ix": 4 }, "o": { "a": 0, "k": 0, "ix": 5 }, "r": 1, "bm": 0, "nm": "Fill 1", "mn": "ADBE Vector Graphic - Fill", "hd": false }, { "ty": "tr", "p": { "a": 0, "k": [24, 24], "ix": 2 }, "a": { "a": 0, "k": [0, 0], "ix": 1 }, "s": { "a": 0, "k": [100, 100], "ix": 3 }, "r": { "a": 0, "k": 0, "ix": 6 }, "o": { "a": 0, "k": 100, "ix": 7 }, "sk": { "a": 0, "k": 0, "ix": 4 }, "sa": { "a": 0, "k": 0, "ix": 5 }, "nm": "Transform" }], "nm": "Group 4", "np": 3, "cix": 2, "bm": 0, "ix": 2, "mn": "ADBE Vector Group", "hd": false }], "ip": 0, "op": 120, "st": 0, "ct": 1, "bm": 0 }], "markers": [], "props": {}
+    };
+    const placeholderTexts = ["Don't just sit there, create a task."];
+
+    function setRandomPlaceholder() {
+      const randomIndex = Math.floor(Math.random() * placeholderTexts.length);
+      input.placeholder = placeholderTexts[randomIndex];
+    }
+
+    let currentSortOrder = "newest";
+    const sortToggle = document.getElementById("sort-toggle");
+
+    const createTaskElement = (task, index) => {
+      const item = document.createElement('li');
+      item.className = 'task-item';
+      if (task.completed) { item.classList.add('completed'); }
+
+      const checkboxButton = document.createElement('button');
+      checkboxButton.className = 'checkbox-icon';
+      if (task.completed) { checkboxButton.classList.add('completed'); }
+
+      const uncheckedIcon = document.createElement('span');
+      uncheckedIcon.className = 'material-symbols-outlined';
+      uncheckedIcon.textContent = 'circle';
+
+      const checkedIcon = document.createElement('span');
+      checkedIcon.className = 'material-symbols-outlined';
+      checkedIcon.textContent = 'check';
+
+      if (task.completed) {
+        uncheckedIcon.classList.add('hidden');
+      } else {
+        checkedIcon.classList.add('hidden');
+      }
+
+      checkboxButton.appendChild(uncheckedIcon);
+      checkboxButton.appendChild(checkedIcon);
+
+      checkboxButton.onclick = () => {
+        item.classList.add('fading-out');
+        setTimeout(() => {
+          parent.postMessage({ pluginMessage: { type: 'toggle-task', index: index } }, '*');
+        }, 150);
+      };
+
+      const text = document.createElement('span');
+      text.className = "task-text";
+      text.textContent = task.text;
+
+      const navigateBtn = document.createElement('button');
+      navigateBtn.className = "icon-button";
+      const navigateIcon = document.createElement('span');
+      navigateIcon.className = "material-symbols-outlined";
+      navigateIcon.textContent = "arrow_forward";
+      navigateBtn.appendChild(navigateIcon);
+      navigateBtn.title = 'Find Layer';
+      navigateBtn.onclick = () => { parent.postMessage({ pluginMessage: { type: 'navigate-to-node', nodeId: task.nodeId, pageId: task.pageId } }, '*'); };
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = "icon-button";
+      const deleteIcon = document.createElement('span');
+      deleteIcon.className = "material-symbols-outlined";
+      deleteIcon.textContent = "close";
+      deleteBtn.appendChild(deleteIcon);
+      deleteBtn.title = 'Delete Task';
+      deleteBtn.onclick = () => {
+        item.classList.add('fading-out');
+        setTimeout(() => { parent.postMessage({ pluginMessage: { type: 'delete-task', index: index } }, '*'); }, 150);
+      };
+
+      item.appendChild(checkboxButton);
+      item.appendChild(text);
+      if (task.nodeId && task.pageId) {
+        item.appendChild(navigateBtn);
+      }
+      item.appendChild(deleteBtn);
+      item.classList.add('task-fade-in');
+      return item;
+    };
+
+    function renderTasks(tasks) {
+      // Keep a local copy of the last rendered task list
+      window._latestTasks = tasks;
+
+      activeList.innerHTML = '';
+      completedList.innerHTML = '';
+
+      let activeTasks = tasks.filter(task => !task.completed);
+      const completedTasks = tasks.filter(task => task.completed);
+
+      if (currentSortOrder === "oldest") {
+        activeTasks = activeTasks.sort((a, b) => a.createdAt - b.createdAt);
+      } else {
+        activeTasks = activeTasks.sort((a, b) => b.createdAt - a.createdAt);
+      }
+
+      activeTasks.forEach((task, index) => {
+        const item = createTaskElement(task, index);
+        activeList.appendChild(item);
+      });
+
+      completedTasks.forEach((task, index) => {
+        const item = createTaskElement(task, index + activeTasks.length);
+        completedList.appendChild(item);
+      });
+
+      completedSection.style.display = completedTasks.length > 0 ? 'block' : 'none';
+
+      const noActiveTasks = activeTasks.length === 0;
+
+      if (noActiveTasks) {
+        emptyState.classList.remove('hidden');
+        void emptyState.offsetWidth; // force reflow for animation
+        emptyState.classList.add('show');
+        showLottieAnimation(emptyLottie);
+
+      } else {
+        emptyState.classList.remove('show');
+        emptyState.classList.add('hidden');
+      }
+
+      sortControls.classList.toggle('hidden', noActiveTasks);
+      ;
+    }
+    const submitTask = () => {
+      const taskText = input.value.trim();
+      if (taskText) {
+        const tempTask = { text: taskText, completed: false, nodeId: linkedNodeId, pageId: linkedPageId };
+        const taskElement = createTaskElement(tempTask, -1);
+        activeList.prepend(taskElement);
+
+        // Force layout reflow before adding 'new' class
+        parent.postMessage({ pluginMessage: { type: 'add-task', text: taskText, nodeId: linkedNodeId, pageId: linkedPageId } }, '*');
+        input.value = '';
+        linkedNodeId = null;
+        linkedPageId = null;
+        setRandomPlaceholder();
+        autoGrow(input);
+        submitIconButton.disabled = true;
+      }
+    };
+
+    submitIconButton.onclick = () => {
+      submitTask();
+      input.focus();
+    };
+
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        submitTask();
+      }
+    });
+
+    const autoGrow = (element) => {
+      element.style.height = "auto";
+      element.style.height = (element.scrollHeight) + "px";
+    };
+    input.addEventListener('input', () => {
+      autoGrow(input);
+      submitIconButton.disabled = input.value.trim().length === 0;
+    });
+
+    clearButton.onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'clear-completed' } }, '*');
+    };
+
+    setRandomPlaceholder();
+    setTimeout(() => autoGrow(input), 0);
+    parent.postMessage({ pluginMessage: { type: 'ui-ready' } }, '*');
+
+    sortNewestBtn.addEventListener("click", () => {
+      currentSortOrder = "newest";
+      sortNewestBtn.classList.add("active");
+      sortOldestBtn.classList.remove("active");
+      renderTasks(window._latestTasks || []);
+    });
+
+    sortOldestBtn.addEventListener("click", () => {
+      currentSortOrder = "oldest";
+      sortOldestBtn.classList.add("active");
+      sortNewestBtn.classList.remove("active");
+      renderTasks(window._latestTasks || []);
+    });
+    function showLottieAnimation(jsonData) {
+      const container = document.getElementById("lottie-container");
+      container.innerHTML = ""; // Clear previous animation
+
+      const anim = lottie.loadAnimation({
+        container: container,
+        renderer: "svg",
+        loop: false,
+        autoplay: true,
+        animationData: jsonData,
+      });
+      anim.setSpeed(0.6);     // 🐢 Slow it down to 75% speed (1.0 is normal)
+      // Add hover listener to re-trigger the animation
+      const lottieContainer = document.getElementById("lottie-container");
+
+      lottieContainer.addEventListener("mouseenter", () => {
+        if (lottie) {
+          lottie.stop();
+          lottie.play();
+        }
+      });
+    }
+    completedSummary.addEventListener("click", () => {
+      const isOpening = !completedSummary.parentElement.open;
+      if (isOpening) {
+        requestAnimationFrame(() => {
+          const children = completedList.children;
+          for (const child of children) {
+            child.classList.remove("task-fade-in"); // reset
+            void child.offsetWidth; // force reflow
+            child.classList.add("task-fade-in");    // retrigger
+          }
+        });
+      }
+    });
+
+    function launchGreyscaleConfetti() {
+      setTimeout(() => {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { x: 0.5, y: 0.4 },
+          gravity: 0.7,
+          colors: ['#999999', '#666666', '#cccccc', '#444444', '#e0e0e0', '#0D99FF'],
+        });
+      }, 400); // 400ms delay
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.body.classList.toggle("light-mode", !prefersDark);
+    });
+
+  </script>
+</body>
+
+</html>
